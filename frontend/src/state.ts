@@ -11,6 +11,7 @@ interface TodoState {
   addTodo: (text: string) => void;
   toggleTodo: (id: number) => void;
   deleteTodo: (id: number) => void;
+  updateTodo: (id: number, newText: string) => void;
 }
 
 const useTodoForm = create<TodoState>((set) => ({
@@ -29,30 +30,12 @@ const useTodoForm = create<TodoState>((set) => ({
     set((state) => ({
       todos: state.todos.filter((todo) => todo.id !== id),
     })),
+  updateTodo: (id, newText) =>
+    set((state) => ({
+      todos: state.todos.map((todo) =>
+        todo.id === id ? { ...todo, text: newText } : todo
+      ),
+    })),
 }));
 
 export default useTodoForm;
-
-// import { create } from "zustand";
-
-// interface UserInfoT {
-//   id: string;
-//   email: string;
-// }
-
-// interface AppStateT {
-//   // User State
-//   userInfo: UserInfoT | null;
-//   // Set the user info
-//   setUserInfo: (userInfo: UserInfoT) => void;
-//   // Reset the state
-//   resetState: () => void;
-// }
-
-// const useAppState = create<AppStateT>((set) => ({
-//   userInfo: null,
-//   setUserInfo: (userInfo: UserInfoT) => set({ userInfo }),
-//   resetState: () => set({ userInfo: null }),
-// }));
-
-// export default useAppState;
