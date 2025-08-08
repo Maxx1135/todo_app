@@ -25,6 +25,7 @@ const formSchema = z.object({
 
 const Login = () => {
   const navigate = useNavigate();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {

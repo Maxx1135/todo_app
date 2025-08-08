@@ -10,7 +10,7 @@ const Logout = () => {
 
   useEffect(() => {
     const logoutUser = async () => {
-      await Supabase.auth.signOut();
+      await Supabase.auth.signOut({ scope: "local" });
       navigate(loginPage);
     };
     resetState();
