@@ -1,15 +1,13 @@
 import { z } from "zod";
+import { BaseSupabaseSchema } from "../../baseSchema";
 
 export const TodoAttrSchema = z.object({
-  id: z.string().optional(),
-  user_id: z.string(),
   title: z.string(),
   completed: z.boolean().optional(),
 });
 
-export const TodoSchema = TodoAttrSchema.extend({
-  id: z.string(),
-  completed: z.boolean(),
+export const TodoSchema = BaseSupabaseSchema.extend({
+  ...TodoAttrSchema.shape,
 });
 
 export type TodoAttrT = z.infer<typeof TodoAttrSchema>;

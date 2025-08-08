@@ -1,4 +1,3 @@
-// hooks/useTodos.ts
 import { z } from "zod";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { todosTable } from "../../../constants";
@@ -16,12 +15,12 @@ export const addTodo = async (todoData: TodoAttrT) => {
   return TodoSchema.parse(data[0]);
 };
 
-export const useAddTodo = () =>
+export const useAddTodo = (userId: string) =>
   useMutation({
     mutationFn: (todoData: TodoAttrT) => addTodo(todoData),
     onSuccess: () =>
       genericMutationResultFn.onSuccess({
-        queryKeys: [todosTable],
+        queryKeys: [todosTable, userId],
       }),
   });
 
@@ -40,49 +39,4 @@ export const useGetTodos = (userId: string) =>
     queryKey: [todosTable, userId],
     queryFn: () => getTodos(userId),
     enabled: !!userId,
-  });
-
-// Mettre à jour une tâche
-export const updateTodo = async (
-  todoId: string,
-  newData: Partial<TodoAttrT>
-) => {
-  const { data, error } = await Supabase.from(todosTable)
-    .update(newData)
-    .eq("id", todoId)
-    .select("*")
-    .single();
-
-  if (error) throw new Error(error.message);
-  return TodoSchema.parse(data);
-};
-
-export const useUpdateTodo = () =>
-  useMutation({
-    mutationFn: ({
-      todoId,
-      newData,
-    }: {
-      todoId: string;
-      newData: Partial<TodoAttrT>;
-    }) => updateTodo(todoId, newData),
-    onSuccess: () =>
-      genericMutationResultFn.onSuccess({
-        queryKeys: [todosTable],
-      }),
-  });
-
-// Supprimer une tâche
-export const deleteTodo = async (todoId: string) => {
-  const { error } = await Supabase.from(todosTable).delete().eq("id", todoId);
-  if (error) throw new Error(error.message);
-};
-
-export const useDeleteTodo = () =>
-  useMutation({
-    mutationFn: (todoId: string) => deleteTodo(todoId),
-    onSuccess: () =>
-      genericMutationResultFn.onSuccess({
-        queryKeys: [todosTable],
-      }),
   });

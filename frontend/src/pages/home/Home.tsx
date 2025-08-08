@@ -4,19 +4,17 @@ import Todo from "../todo/Todo";
 
 const Home = () => {
   return (
-    <div className="w-screen h-screen  bg-[#D3D3D3] flex justify-center">
-      <div className="w-2/3 h-auto flex flex-col gap-10 pt-10 items-center  ">
-        <div className="text-4xl text-[#536895] w-full text-center p-5 font-bold">
+    <div className="w-screen h-screen bg-[#222936] flex justify-center items-start">
+      <div className="w-9/10 h-auto flex flex-col gap-10 pt-10 items-center relative">
+        <div className="text-4xl text-[#FAEAE1] w-full text-center p-5 font-bold">
           To do app
         </div>
 
-        <div>
+        <div className="w-8/10">
           <Todo />
         </div>
-      </div>
-      <div className="pt-5">
-        <button className="bg-[#536895] text-white px-4 py-2 rounded hover:bg-[#3b4f7a] transition-colors duration-300">
-          <Link to={logoutPage}>Se déconnecter</Link>
+        <button className="absolute top-4 right-4 bg-[#E83C75] text-[#FAEAE1] px-3 py-1 rounded hover:bg-[#3b4f7a] transition-colors duration-300 text-lg">
+          <Link to={logoutPage}>Log out</Link>
         </button>
       </div>
     </div>

@@ -1,120 +1,58 @@
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "../../components/ui/alert-dialog";
 import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
-import {
-  useAddTodo,
-  useDeleteTodo,
-  useGetTodos,
-  useUpdateTodo,
-} from "../../hooks/tables/todos/hooks";
-import type { TodoAttrT } from "../../hooks/tables/todos/schema";
+import { useAddTodo, useGetTodos } from "../../hooks/tables/todos/hooks";
+import type { TodoT } from "../../hooks/tables/todos/schema";
 import useAppState from "../../state";
 import { useState } from "react";
 
 const Todo = () => {
-  const { userInfo } = useAppState();
-  const { data: todos, isLoading } = useGetTodos(userInfo?.id || "");
-  const addTodo = useAddTodo();
-  const deleteTodo = useDeleteTodo();
-  const updateTodo = useUpdateTodo();
+  const userInfo = useAppState((state) => state.userInfo);
+  const userId = userInfo?.id || "";
+  const { data: todos, isLoading } = useGetTodos(userId);
+  const addTodo = useAddTodo(userInfo?.id || "");
 
   const [input, setInput] = useState("");
-  const [editInput, setEditInput] = useState("");
-  const [editingTodo, setEditingTodo] = useState<TodoAttrT | null>(null);
 
   const handleAdd = () => {
-    if (!input.trim() || !userInfo?.id) return;
-    addTodo.mutate({ user_id: userInfo.id, title: input });
+    if (!input.trim() || !userId) return;
+    addTodo.mutate({ title: input });
     setInput("");
   };
 
-  const handleDelete = (id: string) => {
-    deleteTodo.mutate(id);
-  };
-
-  const handleEdit = (todo: TodoAttrT) => {
-    setEditingTodo(todo);
-    setEditInput(todo.title);
-  };
-
-  const handleUpdate = () => {
-    if (!editingTodo || !editInput.trim() || !editingTodo.id) return;
-    updateTodo.mutate({
-      todoId: editingTodo.id,
-      newData: { title: editInput },
-    });
-    setEditingTodo(null);
-  };
-
+  if (!userId) return <p>Chargement utilisateur...</p>;
   return (
-    <div className="w-full p-5 rounded shadow">
-      <div className="flex gap-5">
+    <div className="w-full max-w-md mx-auto p-6 bg-[#222936] rounded-lg border-2 border-gray-200 shadow-sm">
+      <div className="flex gap-3">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ajouter une tâche"
-          className="border p-2 rounded"
+          className="flex-1 border text-white  border-gray-300 px-3  rounded-md  transition"
         />
-        <button onClick={handleAdd} className="p-2">
+        <Button
+          type="button"
+          onClick={handleAdd}
+          className="px-4 py-4 rounded-md bg-[#FAEAE1] text-[#222936] hover:bg-[#E83C75] hover:text-white cursor-pointer transition-colors duration-300 text-lg"
+        >
           Ajouter
-        </button>
+        </Button>
       </div>
 
-      <div className="pt-10">
-        <span>Mes tâches</span>
-      </div>
       {isLoading ? (
-        <p>Chargement...</p>
+        <p className="mt-6 text-gray-400 text-center">Chargement...</p>
       ) : (
-        <ul>
-          {todos?.map((todo: TodoAttrT) => (
-            <li key={todo.id} className="flex justify-between items-center">
-              <span>{todo.title}</span>
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={() => handleEdit(todo)}>
-                  Modifier
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => todo.id && handleDelete(todo.id)}
-                  disabled={!todo.id}
-                >
-                  Supprimer
-                </Button>
-
-                <AlertDialog
-                  open={!!editingTodo}
-                  onOpenChange={(open) => !open && setEditingTodo(null)}
-                >
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Modifier la tâche</AlertDialogTitle>
-                    </AlertDialogHeader>
-                    <Input
-                      value={editInput}
-                      onChange={(e) => setEditInput(e.target.value)}
-                      placeholder="Nouveau titre"
-                    />
-                    <AlertDialogFooter className="mt-4 flex justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        onClick={() => setEditingTodo(null)}
-                      >
-                        Annuler
-                      </Button>
-                      <Button onClick={handleUpdate}>Enregistrer</Button>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            </li>
-          ))}
+        <ul className="mt-6 space-y-2">
+          {todos && todos.length ? (
+            todos.map((todo: TodoT) => (
+              <li
+                key={todo.id}
+                className="px-4 py-2 rounded-md border border-gray-100 bg-gray-50 text-gray-800"
+              >
+                {todo.title}
+              </li>
+            ))
+          ) : (
+            <li className="text-gray-400 italic text-center">Aucune tâche.</li>
+          )}
         </ul>
       )}
     </div>
