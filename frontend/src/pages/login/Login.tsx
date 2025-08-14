@@ -7,6 +7,12 @@ import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { homePage } from "../../constants";
 import Supabase from "../../lib/supabase";
+import type React from "react";
+import { useEffect } from "react";
+
+interface LoginT {
+  redirect?: boolean;
+}
 
 const formSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email"),
@@ -23,8 +29,14 @@ const formSchema = z.object({
     ),
 });
 
-const Login = () => {
+const Login: React.FC<LoginT> = ({ redirect = true }) => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!redirect) {
+      console.log("Redirection désactivée");
+    }
+  }, [redirect]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -53,7 +65,7 @@ const Login = () => {
     navigate(homePage);
   };
   return (
-    <div className=" w-screen h-screen bg-[#D3D3D3]">
+    <div className=" w-screen h-screen bg-[#222936] text-white ">
       <div className=" flex justify-center items-center h-full ">
         <form
           className="w-1/3 p-6 border-3 md:p-8"
@@ -83,7 +95,7 @@ const Login = () => {
             </div>
             <Button
               type="submit"
-              className="w-full text-sky-700 hover:bg-sky-100"
+              className="w-full bg-[#FAEAE1] text-[#222936] hover:bg-[#E83C75] hover:text-white cursor-pointer transition-colors duration-300 text-lg"
             >
               Se connecter
             </Button>

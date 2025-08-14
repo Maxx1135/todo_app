@@ -10,37 +10,52 @@ import Supabase from "../lib/supabase";
 const PrivateRoute = () => {
   const [userSession, setUserSession] = useState<Session | null>(null);
   const setUserInfo = useAppState((state) => state.setUserInfo);
-  const [isLoading, setIsLoading] = useState(false);
+  const resetState = useAppState((state) => state.resetState);
+  const [isLoading, setIsLoading] = useState(true);
 
   // AUTHENTICATION
   useEffect(() => {
     Supabase.auth.getSession().then(async ({ data: { session } }) => {
       setUserSession(session);
-      if (session && !isLoading) {
+      if (session) {
         setUserInfo({
           id: session.user.id,
           email: session.user.email!,
         });
-        setIsLoading(true);
+      } else {
+        resetState();
       }
+      setIsLoading(false);
     });
 
     const {
       data: { subscription },
     } = Supabase.auth.onAuthStateChange((_event, session) => {
       setUserSession(session);
+      if (session) {
+        setUserInfo({
+          id: session.user.id,
+          email: session.user.email || "",
+        });
+      } else {
+        resetState();
+      }
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [setUserInfo, resetState]);
+
+  if (isLoading) {
+    return <span>Chargement utilisateur...</span>;
+  }
 
   if (!userSession) {
     return <Login redirect={false} />;
-  } else {
-    return <Outlet />;
   }
+
+  return <Outlet />;
 };
 
 export default PrivateRoute;

@@ -1,5 +1,7 @@
+
 import { Button } from "../../components/ui/button";
 import { useAddTodo, useGetTodos } from "../../hooks/tables/todos/hooks";
+
 import type { TodoT } from "../../hooks/tables/todos/schema";
 import useAppState from "../../state";
 import { useState } from "react";
@@ -14,7 +16,7 @@ const Todo = () => {
 
   const handleAdd = () => {
     if (!input.trim() || !userId) return;
-    addTodo.mutate({ title: input });
+    addTodo.mutate({ title: input, user_id: userId });
     setInput("");
   };
 
@@ -38,16 +40,16 @@ const Todo = () => {
       </div>
 
       {isLoading ? (
-        <p className="mt-6 text-gray-400 text-center">Chargement...</p>
+        <span className="mt-6 text-gray-400 text-center">Chargement...</span>
       ) : (
-        <ul className="mt-6 space-y-2">
+        <ul className="mt-6 space-y-4">
           {todos && todos.length ? (
             todos.map((todo: TodoT) => (
               <li
                 key={todo.id}
-                className="px-4 py-2 rounded-md border border-gray-100 bg-gray-50 text-gray-800"
+                className="p-2 flex justify-between rounded-md border border-[#E83C75] bg-[#FAEAE1] text-gray-800"
               >
-                {todo.title}
+                <span className="pt-1">{todo.title}</span>
               </li>
             ))
           ) : (
