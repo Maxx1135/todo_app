@@ -1,4 +1,3 @@
-
 import { Button } from "../../components/ui/button";
 import { useAddTodo, useGetTodos } from "../../hooks/tables/todos/hooks";
 
@@ -8,9 +7,9 @@ import { useState } from "react";
 
 const Todo = () => {
   const userInfo = useAppState((state) => state.userInfo);
-  const userId = userInfo?.id || "";
+  const userId = userInfo!.id!;
   const { data: todos, isLoading } = useGetTodos(userId);
-  const addTodo = useAddTodo(userInfo?.id || "");
+  const addTodo = useAddTodo(userId);
 
   const [input, setInput] = useState("");
 

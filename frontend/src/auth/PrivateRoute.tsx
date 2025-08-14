@@ -11,7 +11,7 @@ const PrivateRoute = () => {
   const [userSession, setUserSession] = useState<Session | null>(null);
   const setUserInfo = useAppState((state) => state.setUserInfo);
   const resetState = useAppState((state) => state.resetState);
-  const [isLoading, setIsLoading] = useState(true);
+  const userInfo = useAppState((state) => state.userInfo);
 
   // AUTHENTICATION
   useEffect(() => {
@@ -25,21 +25,12 @@ const PrivateRoute = () => {
       } else {
         resetState();
       }
-      setIsLoading(false);
     });
 
     const {
       data: { subscription },
     } = Supabase.auth.onAuthStateChange((_event, session) => {
       setUserSession(session);
-      if (session) {
-        setUserInfo({
-          id: session.user.id,
-          email: session.user.email || "",
-        });
-      } else {
-        resetState();
-      }
     });
 
     return () => {
@@ -47,12 +38,12 @@ const PrivateRoute = () => {
     };
   }, [setUserInfo, resetState]);
 
-  if (isLoading) {
-    return <span>Chargement utilisateur...</span>;
-  }
-
   if (!userSession) {
     return <Login redirect={false} />;
+  }
+
+  if (!userInfo?.id) {
+    return <span>Chargement profil... </span>;
   }
 
   return <Outlet />;
