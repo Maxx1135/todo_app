@@ -1,6 +1,9 @@
 import { Button } from "../../components/ui/button";
-import { useAddTodo, useGetTodos } from "../../hooks/tables/todos/hooks";
-
+import {
+  useAddTodo,
+  useDeleteTodo,
+  useGetTodos,
+} from "../../hooks/tables/todos/hooks";
 import type { TodoT } from "../../hooks/tables/todos/schema";
 import useAppState from "../../state";
 import { useState } from "react";
@@ -10,6 +13,7 @@ const Todo = () => {
   const userId = userInfo!.id!;
   const { data: todos, isLoading } = useGetTodos(userId);
   const addTodo = useAddTodo(userId);
+  const deleteTodo = useDeleteTodo();
 
   const [input, setInput] = useState("");
 
@@ -17,6 +21,10 @@ const Todo = () => {
     if (!input.trim() || !userId) return;
     addTodo.mutate({ title: input, user_id: userId });
     setInput("");
+  };
+
+  const handleDelete = (id: string) => {
+    deleteTodo.mutate(id);
   };
 
   if (!userId) return <p>Chargement utilisateur...</p>;
@@ -49,6 +57,14 @@ const Todo = () => {
                 className="p-2 flex justify-between rounded-md border border-[#E83C75] bg-[#FAEAE1] text-gray-800"
               >
                 <span className="pt-1">{todo.title}</span>
+
+                <Button
+                  className="bg-red-300 hover:bg-red-400 cursor-pointer"
+                  onClick={() => todo.id && handleDelete(todo.id)}
+                  disabled={!todo.id}
+                >
+                  ❌
+                </Button>
               </li>
             ))
           ) : (

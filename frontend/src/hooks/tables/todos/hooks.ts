@@ -40,3 +40,18 @@ export const useGetTodos = (userId: string) =>
     queryFn: () => getTodos(userId),
     enabled: !!userId,
   });
+
+// Supprimer une tâche
+export const deleteTodo = async (todoId: string) => {
+  const { error } = await Supabase.from(todosTable).delete().eq("id", todoId);
+  if (error) throw new Error(error.message);
+};
+
+export const useDeleteTodo = () =>
+  useMutation({
+    mutationFn: (todoId: string) => deleteTodo(todoId),
+    onSuccess: () =>
+      genericMutationResultFn.onSuccess({
+        queryKeys: [todosTable],
+      }),
+  });
