@@ -10,18 +10,20 @@ import Supabase from "../lib/supabase";
 const PrivateRoute = () => {
   const [userSession, setUserSession] = useState<Session | null>(null);
   const setUserInfo = useAppState((state) => state.setUserInfo);
-  const [isLoading, setIsLoading] = useState(false);
+  const resetState = useAppState((state) => state.resetState);
+  const userInfo = useAppState((state) => state.userInfo);
 
   // AUTHENTICATION
   useEffect(() => {
     Supabase.auth.getSession().then(async ({ data: { session } }) => {
       setUserSession(session);
-      if (session && !isLoading) {
+      if (session) {
         setUserInfo({
           id: session.user.id,
           email: session.user.email!,
         });
-        setIsLoading(true);
+      } else {
+        resetState();
       }
     });
 
@@ -34,13 +36,17 @@ const PrivateRoute = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [setUserInfo, resetState]);
 
   if (!userSession) {
     return <Login redirect={false} />;
-  } else {
-    return <Outlet />;
   }
+
+  if (!userInfo?.id) {
+    return <span>Chargement profil... </span>;
+  }
+
+  return <Outlet />;
 };
 
 export default PrivateRoute;
