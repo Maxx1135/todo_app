@@ -22,8 +22,6 @@ const PrivateRoute = () => {
           id: session.user.id,
           email: session.user.email!,
         });
-      } else {
-        resetState();
       }
     });
 
@@ -39,7 +37,7 @@ const PrivateRoute = () => {
   }, [setUserInfo, resetState]);
 
   if (!userSession) {
-    return <Login redirect={false} />;
+    return <Login />;
   }
 
   if (!userInfo?.id) {

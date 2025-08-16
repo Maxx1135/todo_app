@@ -1,10 +1,22 @@
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../../components/ui/alert-dialog";
 import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
 import {
   useAddTodo,
   useDeleteTodo,
   useGetTodos,
+  useUpdateTodo,
 } from "../../hooks/tables/todos/hooks";
-import type { TodoT } from "../../hooks/tables/todos/schema";
+import { type TodoT } from "../../hooks/tables/todos/schema";
 import useAppState from "../../state";
 import { useState } from "react";
 
@@ -14,8 +26,13 @@ const Todo = () => {
   const { data: todos, isLoading } = useGetTodos(userId);
   const addTodo = useAddTodo(userId);
   const deleteTodo = useDeleteTodo();
+  const updateTodo = useUpdateTodo();
 
   const [input, setInput] = useState("");
+  const [editInput, setEditInput] = useState("");
+  const [editingTodo, setEditingTodo] = useState<TodoT | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [editError, setEditError] = useState("");
 
   const handleAdd = () => {
     if (!input.trim() || !userId) return;
@@ -27,9 +44,38 @@ const Todo = () => {
     deleteTodo.mutate(id);
   };
 
+  const handleEdit = (todo: TodoT) => {
+    setEditingTodo(todo);
+    setEditInput(todo.title);
+    setIsOpen(true);
+  };
+
+  const handleUpdate = () => {
+    if (!editingTodo) return;
+
+    if (!editInput.trim()) {
+      setEditError("Champ obbligatoire");
+      return;
+    }
+
+    updateTodo.mutate(
+      {
+        todoId: editingTodo.id,
+        newData: { title: editInput },
+      },
+      {
+        onSuccess: () => {
+          setEditingTodo(null);
+          setIsOpen(false);
+          setEditError("");
+        },
+      }
+    );
+  };
+
   if (!userId) return <p>Chargement utilisateur...</p>;
   return (
-    <div className="w-full max-w-md mx-auto p-6 bg-[#222936] rounded-lg border-2 border-gray-200 shadow-sm">
+    <div className="w-3/4 mx-auto p-6 bg-[#222936] rounded-lg border-2 border-gray-200 shadow-sm">
       <div className="flex gap-3">
         <input
           value={input}
@@ -57,14 +103,24 @@ const Todo = () => {
                 className="p-2 flex justify-between rounded-md border border-[#E83C75] bg-[#FAEAE1] text-gray-800"
               >
                 <span className="pt-1">{todo.title}</span>
-
-                <Button
-                  className="bg-red-300 hover:bg-red-400 cursor-pointer"
-                  onClick={() => todo.id && handleDelete(todo.id)}
-                  disabled={!todo.id}
-                >
-                  ❌
-                </Button>
+                <div className="flex gap-3">
+                  <Button
+                    onClick={() => {
+                      handleEdit(todo);
+                      setIsOpen(true);
+                    }}
+                    className="cursor-pointer bg-green-300 hover:bg-green-400"
+                  >
+                    ✎
+                  </Button>
+                  <Button
+                    className="bg-red-300 hover:bg-red-400 cursor-pointer"
+                    onClick={() => todo.id && handleDelete(todo.id)}
+                    disabled={!todo.id}
+                  >
+                    ❌
+                  </Button>
+                </div>
               </li>
             ))
           ) : (
@@ -72,6 +128,41 @@ const Todo = () => {
           )}
         </ul>
       )}
+      <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+        <AlertDialogTrigger asChild></AlertDialogTrigger>
+
+        <AlertDialogContent className="bg-[#FAEAE1] ">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-[#E83C75] ">
+              Modifier la tâche
+            </AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogDescription>
+            Changez le titre de votre tâche puis cliquez sur "Enregistrer" pour
+            appliquer la modification.
+          </AlertDialogDescription>
+          <Input
+            value={editInput}
+            onChange={(e) => setEditInput(e.target.value)}
+            placeholder="Nouveau titre"
+          />
+          {editError && (
+            <span className="text-red-500 text-sm mt-1">{editError}</span>
+          )}
+          <AlertDialogFooter className="mt-4 flex justify-end gap-2">
+            <AlertDialogCancel className="cursor-pointer bg-red-400 hover:bg-red-500 text-white">
+              Annuler
+            </AlertDialogCancel>
+            <Button
+              type="button"
+              onClick={handleUpdate}
+              className="cursor-pointer bg-green-400 hover:bg-green-500 text-white"
+            >
+              Enregistrer
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

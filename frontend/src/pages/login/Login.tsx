@@ -7,12 +7,6 @@ import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { homePage } from "../../constants";
 import Supabase from "../../lib/supabase";
-import type React from "react";
-import { useEffect } from "react";
-
-interface LoginT {
-  redirect?: boolean;
-}
 
 const formSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email"),
@@ -29,14 +23,8 @@ const formSchema = z.object({
     ),
 });
 
-const Login: React.FC<LoginT> = ({ redirect = true }) => {
+const Login = () => {
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!redirect) {
-      console.log("Redirection désactivée");
-    }
-  }, [redirect]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
