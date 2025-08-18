@@ -82,3 +82,26 @@ export const useUpdateTodo = () =>
         queryKeys: [todosTable],
       }),
   });
+
+// Marquer une tâche comme complétée
+export const completeTodo = async (todoId: string) => {
+  const { data, error } = await Supabase.from(todosTable)
+    .update({
+      completed: true,
+    })
+    .eq("id", todoId)
+    .select("*")
+    .single();
+
+  if (error) throw new Error(error.message);
+  return TodoSchema.parse(data);
+};
+
+export const useCompleteTodo = () =>
+  useMutation({
+    mutationFn: (todoId: string) => completeTodo(todoId),
+    onSuccess: () =>
+      genericMutationResultFn.onSuccess({
+        queryKeys: [todosTable],
+      }),
+  });

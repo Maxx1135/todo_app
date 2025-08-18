@@ -3,7 +3,7 @@ import { BaseSupabaseSchema } from "../../baseSchema";
 
 export const TodoAttrSchema = z.object({
   title: z.string(),
-  completed: z.boolean().optional(),
+  completed: z.boolean().default(false).optional(),
   user_id: z.string(),
 });
 
