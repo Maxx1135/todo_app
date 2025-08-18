@@ -246,6 +246,3 @@ const Todo = () => {
 };
 
 export default Todo;
-
-// Bonjour j'alme jusre==te ==== ube
-// Ce n'est pas Je dois juste me focxys une peu poiur ne pas faire de faute quand j'écrit quelques chsoes. Ce n'est pzs silpler
