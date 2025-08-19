@@ -3,6 +3,7 @@ import { create } from "zustand";
 interface UserInfoT {
   id: string;
   email: string;
+  name?: string;
 }
 
 interface AppStateT {

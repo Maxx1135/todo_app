@@ -27,7 +27,7 @@ export const useAddTodo = (userId: string) =>
 export const getTodos = async (userId: string) => {
   const { data, error } = await Supabase.from(todosTable)
     .select("*")
-    .eq("user_id", userId)
+    .or(`user_id.eq.${userId},is_shared.eq.true`)
     .order("id", { ascending: true });
 
   if (error) throw new Error(error.message);
@@ -100,6 +100,48 @@ export const completeTodo = async (todoId: string) => {
 export const useCompleteTodo = () =>
   useMutation({
     mutationFn: (todoId: string) => completeTodo(todoId),
+    onSuccess: () =>
+      genericMutationResultFn.onSuccess({
+        queryKeys: [todosTable],
+      }),
+  });
+
+// Partager un Todo
+export const shareTodo = async (todoId: string) => {
+  const { data, error } = await Supabase.from(todosTable)
+    .update({ is_shared: true })
+    .eq("id", todoId)
+    .select("*")
+    .single();
+
+  if (error) throw new Error(error.message);
+  return TodoSchema.parse(data);
+};
+
+export const useShareTodo = () =>
+  useMutation({
+    mutationFn: (todoId: string) => shareTodo(todoId),
+    onSuccess: () =>
+      genericMutationResultFn.onSuccess({
+        queryKeys: [todosTable],
+      }),
+  });
+
+// Retirer le partage d'un Todo
+export const unshareTodo = async (todoId: string) => {
+  const { data, error } = await Supabase.from(todosTable)
+    .update({ is_shared: false })
+    .eq("id", todoId)
+    .select("*")
+    .single();
+
+  if (error) throw new Error(error.message);
+  return TodoSchema.parse(data);
+};
+
+export const useUnshareTodo = () =>
+  useMutation({
+    mutationFn: (todoId: string) => unshareTodo(todoId),
     onSuccess: () =>
       genericMutationResultFn.onSuccess({
         queryKeys: [todosTable],
