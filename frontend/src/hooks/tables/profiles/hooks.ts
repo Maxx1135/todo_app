@@ -7,8 +7,7 @@ import { genericMutationResultFn } from "../../utils";
 export const getProfile = async (userId: string) => {
   const { data, error } = await Supabase.from(profilesTable)
     .select("*")
-    .eq("id", userId)
-    .maybeSingle();
+    .eq("id", userId);
 
   if (error) throw new Error(error.message);
 

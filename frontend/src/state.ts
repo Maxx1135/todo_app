@@ -7,17 +7,19 @@ interface UserInfoT {
 }
 
 interface AppStateT {
-  // User State
   userInfo: UserInfoT | null;
-  // Set the user info
   setUserInfo: (userInfo: UserInfoT) => void;
-  // Reset the state
+  updateName: (name: string) => void;
   resetState: () => void;
 }
 
 const useAppState = create<AppStateT>((set) => ({
   userInfo: null,
   setUserInfo: (userInfo: UserInfoT) => set({ userInfo }),
+  updateName: (name) =>
+    set((state) => ({
+      userInfo: state.userInfo ? { ...state.userInfo, name } : null,
+    })),
   resetState: () => set({ userInfo: null }),
 }));
 

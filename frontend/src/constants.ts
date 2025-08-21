@@ -11,3 +11,4 @@ export const VITE_SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL! as string;
 // Tables
 export const todosTable = "Todos";
 export const profilesTable = "Profiles";
+export const todosharesTable = "Todo_shares";

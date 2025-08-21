@@ -5,7 +5,6 @@ export const TodoAttrSchema = z.object({
   title: z.string(),
   completed: z.boolean().default(false).optional(),
   user_id: z.string(),
-  is_shared: z.boolean().default(false).optional(),
 });
 
 export const TodoSchema = BaseSupabaseSchema.extend({
