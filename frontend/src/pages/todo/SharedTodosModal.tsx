@@ -42,7 +42,7 @@ const SharedTodosModal = ({ isOpen, setIsOpen }: Props) => {
                 {todos.map((todo) => (
                   <li key={`${todo.todo_id}-${todo.shared_by}`}>
                     <span className="text-sm text-gray-500">
-                      {todo.shared_by || "Utilisateur inconnu"}
+                      {todo.shared_by_name || "Utilisateur inconnu"}
                     </span>
 
                     <div className="p-2 rounded-md border border-blue-300 bg-blue-50 text-gray-800 flex items-center justify-between">

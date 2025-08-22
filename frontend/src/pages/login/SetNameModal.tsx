@@ -48,22 +48,34 @@ const SetNameModal = ({ isOpen, setIsOpen }: Props) => {
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-      <AlertDialogContent>
+      <AlertDialogContent className="max-w-sm rounded-lg border border-gray-200 bg-white shadow-lg p-6">
         <AlertDialogHeader>
-          <AlertDialogTitle>Bienvenue !</AlertDialogTitle>
+          <AlertDialogTitle className="text-lg font-semibold text-gray-800">
+            Bienvenue !
+          </AlertDialogTitle>
         </AlertDialogHeader>
-        <AlertDialogDescription>
-          Veuillez entrez votre nom
+        <AlertDialogDescription className="mb-4 text-sm text-gray-500">
+          Veuillez entrer votre nom
         </AlertDialogDescription>
         <Input
           value={nameInput}
           onChange={(e) => setNameInput(e.target.value)}
           placeholder="Nom"
+          className="mb-2 border-gray-300 focus:border-blue-400 focus:ring-blue-400 rounded"
         />
-        {error && <span> {error} </span>}
-        <AlertDialogFooter>
-          <AlertDialogCancel>Annuler</AlertDialogCancel>
-          <Button onClick={handleSave}>Enregistrer</Button>
+        {error && (
+          <span className="text-xs text-red-500 mb-2 block">{error}</span>
+        )}
+        <AlertDialogFooter className="flex justify-end gap-2 mt-4">
+          <AlertDialogCancel className="px-4 py-2 rounded border border-gray-300 text-gray-600 hover:bg-gray-100 transition">
+            Annuler
+          </AlertDialogCancel>
+          <Button
+            className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition"
+            onClick={handleSave}
+          >
+            Enregistrer
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

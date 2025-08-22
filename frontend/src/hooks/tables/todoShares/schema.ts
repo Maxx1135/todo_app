@@ -5,6 +5,7 @@ export const TodoSharesAttrSchema = z.object({
   id: z.string().optional(),
   todo_id: z.string(),
   shared_by: z.string(),
+  shared_by_name: z.string(),
   shared_with: z.string(),
   created_at: z.string().optional(),
   Todos: z

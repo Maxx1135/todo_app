@@ -8,7 +8,7 @@ import { genericMutationResultFn } from "../../utils";
 export const shareTodo = async (todoShared: TodoSharesT) => {
   const { data, error } = await Supabase.from(todosharesTable)
     .insert(todoShared)
-    .select("*, Profiles(name)");
+    .select("*");
 
   if (error) throw new Error(error.message);
   return TodoSharesSchema.parse(data[0]);
@@ -23,44 +23,13 @@ export const useShareTodo = () =>
       }),
   });
 
-// Retirer le partage d'un Todo
-export const unshareTodo = async (todoId: string, sharedWithId: string) => {
-  const { data, error } = await Supabase.from(todosharesTable)
-    .delete()
-    .eq("todo_id", todoId)
-    .eq("shared_with", sharedWithId);
-
-  if (error) throw new Error(error.message);
-  return data;
-};
-
-export const useUnshareTodo = () =>
-  useMutation({
-    mutationFn: ({
-      todoId,
-      sharedWithId,
-    }: {
-      todoId: string;
-      sharedWithId: string;
-    }) => unshareTodo(todoId, sharedWithId),
-    onSuccess: () =>
-      genericMutationResultFn.onSuccess({
-        queryKeys: [todosTable, todosharesTable],
-      }),
-  });
-
 // Récupérer toutes les tâches partagées avec un utilisateur
-export const getSharedTodos = async (
-  userId: string
-): Promise<TodoSharesT[]> => {
+export const getSharedTodos = async (userId: string) => {
   const { data, error } = await Supabase.from(todosharesTable)
     .select(`*, Todos(title)`)
     .eq("shared_with", userId);
 
-  if (error) {
-    console.error(error);
-    throw new Error(error.message);
-  }
+  if (error) throw new Error(error.message);
 
   return data as TodoSharesT[];
 };
