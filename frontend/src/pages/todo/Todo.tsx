@@ -1,168 +1,87 @@
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "../../components/ui/alert-dialog";
 import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
-import {
-  useAddTodo,
-  useDeleteTodo,
-  useGetTodos,
-  useUpdateTodo,
-} from "../../hooks/tables/todos/hooks";
-import { type TodoT } from "../../hooks/tables/todos/schema";
 import useAppState from "../../state";
 import { useState } from "react";
+import TodoInput from "./TodoInput";
+import TodoList from "./TodoList";
+import CompletedTodosModal from "./CompletedTodosModal";
+import SharedTodosModal from "./SharedTodosModal";
+import EditTodoModal from "./EditTodoModal";
+import ShareTodoModal from "./ShareTodoModal";
+import { useGetTodos } from "../../hooks/tables/todos/hooks";
+import type { TodoT } from "../../hooks/tables/todos/schema";
 
 const Todo = () => {
   const userInfo = useAppState((state) => state.userInfo);
   const userId = userInfo!.id!;
+
   const { data: todos, isLoading } = useGetTodos(userId);
-  const addTodo = useAddTodo(userId);
-  const deleteTodo = useDeleteTodo();
-  const updateTodo = useUpdateTodo();
 
   const [input, setInput] = useState("");
-  const [editInput, setEditInput] = useState("");
+  const [isCompleteOpen, setIsCompleteOpen] = useState(false);
+  const [isSharedOpen, setIsSharedOpen] = useState(false);
+  const [isTodoSharedOpen, setTodoIsSharedOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [editingTodo, setEditingTodo] = useState<TodoT | null>(null);
-  const [isOpen, setIsOpen] = useState(false);
-  const [editError, setEditError] = useState("");
-
-  const handleAdd = () => {
-    if (!input.trim() || !userId) return;
-    addTodo.mutate({ title: input, user_id: userId });
-    setInput("");
-  };
-
-  const handleDelete = (id: string) => {
-    deleteTodo.mutate(id);
-  };
-
-  const handleEdit = (todo: TodoT) => {
-    setEditingTodo(todo);
-    setEditInput(todo.title);
-    setIsOpen(true);
-  };
-
-  const handleUpdate = () => {
-    if (!editingTodo) return;
-
-    if (!editInput.trim()) {
-      setEditError("Champ obbligatoire");
-      return;
-    }
-
-    updateTodo.mutate(
-      {
-        todoId: editingTodo.id,
-        newData: { title: editInput },
-      },
-      {
-        onSuccess: () => {
-          setEditingTodo(null);
-          setIsOpen(false);
-          setEditError("");
-        },
-      }
-    );
-  };
+  const [editInput, setEditInput] = useState("");
+  const [currentTodoId, setCurrentTodoId] = useState<string | null>(null);
 
   if (!userId) return <p>Chargement utilisateur...</p>;
   return (
-    <div className="w-3/4 mx-auto p-6 bg-[#222936] rounded-lg border-2 border-gray-200 shadow-sm">
-      <div className="flex gap-3">
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Ajouter une tâche"
-          className="flex-1 border text-white  border-gray-300 px-3  rounded-md  transition"
+    <div className="w-auto h-full flex flex-col h-full gap-5 items-center overflow-x-hidden ">
+      <div className="w-3/4 mx-auto p-6 bg-[#222936] rounded-lg border-2 border-gray-200 shadow-sm">
+        {/* Champ d'ajout */}
+        <TodoInput setInput={setInput} input={input} userId={userId} />
+
+        {/* Liste des tâches */}
+        <TodoList
+          todos={todos ?? []}
+          isLoading={isLoading}
+          setIsEditOpen={setIsEditOpen}
+          setIsSharedOpen={setIsSharedOpen}
+          setEditingTodo={setEditingTodo}
+          setEditInput={setEditInput}
+          setCurrentTodoId={setCurrentTodoId}
         />
+      </div>
+
+      <div className="flex gap-2">
         <Button
           type="button"
-          onClick={handleAdd}
-          className="px-4 py-4 rounded-md bg-[#FAEAE1] text-[#222936] hover:bg-[#E83C75] hover:text-white cursor-pointer transition-colors duration-300 text-lg"
+          onClick={() => setIsCompleteOpen(true)}
+          className="rounded-md bg-blue-200 text-[#222936] hover:bg-blue-300 cursor-pointer transition-colors duration-300"
         >
-          Ajouter
+          Voir les tâches accomplies
+        </Button>
+        <Button
+          type="button"
+          onClick={() => setTodoIsSharedOpen(true)}
+          className="rounded-md bg-green-200 text-[#222936] hover:bg-green-300 cursor-pointer transition-colors duration-300"
+        >
+          Voir les tâches partagées.
         </Button>
       </div>
 
-      {isLoading ? (
-        <span className="mt-6 text-gray-400 text-center">Chargement...</span>
-      ) : (
-        <ul className="mt-6 space-y-4">
-          {todos && todos.length ? (
-            todos.map((todo: TodoT) => (
-              <li
-                key={todo.id}
-                className="p-2 flex justify-between rounded-md border border-[#E83C75] bg-[#FAEAE1] text-gray-800"
-              >
-                <span className="pt-1">{todo.title}</span>
-                <div className="flex gap-3">
-                  <Button
-                    onClick={() => {
-                      handleEdit(todo);
-                      setIsOpen(true);
-                    }}
-                    className="cursor-pointer bg-green-300 hover:bg-green-400"
-                  >
-                    ✎
-                  </Button>
-                  <Button
-                    className="bg-red-300 hover:bg-red-400 cursor-pointer"
-                    onClick={() => todo.id && handleDelete(todo.id)}
-                    disabled={!todo.id}
-                  >
-                    ❌
-                  </Button>
-                </div>
-              </li>
-            ))
-          ) : (
-            <li className="text-gray-400 italic text-center">Aucune tâche.</li>
-          )}
-        </ul>
-      )}
-      <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-        <AlertDialogTrigger asChild></AlertDialogTrigger>
-
-        <AlertDialogContent className="bg-[#FAEAE1] ">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-[#E83C75] ">
-              Modifier la tâche
-            </AlertDialogTitle>
-          </AlertDialogHeader>
-          <AlertDialogDescription>
-            Changez le titre de votre tâche puis cliquez sur "Enregistrer" pour
-            appliquer la modification.
-          </AlertDialogDescription>
-          <Input
-            value={editInput}
-            onChange={(e) => setEditInput(e.target.value)}
-            placeholder="Nouveau titre"
-          />
-          {editError && (
-            <span className="text-red-500 text-sm mt-1">{editError}</span>
-          )}
-          <AlertDialogFooter className="mt-4 flex justify-end gap-2">
-            <AlertDialogCancel className="cursor-pointer bg-red-400 hover:bg-red-500 text-white">
-              Annuler
-            </AlertDialogCancel>
-            <Button
-              type="button"
-              onClick={handleUpdate}
-              className="cursor-pointer bg-green-400 hover:bg-green-500 text-white"
-            >
-              Enregistrer
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Modales */}
+      <CompletedTodosModal
+        isOpen={isCompleteOpen}
+        setIsOpen={setIsCompleteOpen}
+      />
+      <SharedTodosModal
+        isOpen={isTodoSharedOpen}
+        setIsOpen={setTodoIsSharedOpen}
+      />
+      <EditTodoModal
+        isOpen={isEditOpen}
+        setIsOpen={setIsEditOpen}
+        editingTodo={editingTodo}
+        editInput={editInput}
+        setEditInput={setEditInput}
+      />
+      <ShareTodoModal
+        isOpen={isSharedOpen}
+        setIsOpen={setIsSharedOpen}
+        todoId={currentTodoId}
+      />
     </div>
   );
 };

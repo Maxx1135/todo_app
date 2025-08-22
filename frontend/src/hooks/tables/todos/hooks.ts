@@ -4,6 +4,7 @@ import { todosTable } from "../../../constants";
 import Supabase from "../../../lib/supabase";
 import { TodoSchema, type TodoAttrT, type TodoT } from "./schema";
 import { genericMutationResultFn } from "../../utils";
+
 // Ajouter une tâche
 export const addTodo = async (todoData: TodoAttrT) => {
   const { data, error } = await Supabase.from(todosTable)
@@ -77,6 +78,29 @@ export const useUpdateTodo = () =>
       todoId: string;
       newData: Partial<TodoT>;
     }) => updateTodo(todoId, newData),
+    onSuccess: () =>
+      genericMutationResultFn.onSuccess({
+        queryKeys: [todosTable],
+      }),
+  });
+
+// Marquer une tâche comme complétée
+export const completeTodo = async (todoId: string) => {
+  const { data, error } = await Supabase.from(todosTable)
+    .update({
+      completed: true,
+    })
+    .eq("id", todoId)
+    .select("*")
+    .single();
+
+  if (error) throw new Error(error.message);
+  return TodoSchema.parse(data);
+};
+
+export const useCompleteTodo = () =>
+  useMutation({
+    mutationFn: (todoId: string) => completeTodo(todoId),
     onSuccess: () =>
       genericMutationResultFn.onSuccess({
         queryKeys: [todosTable],
